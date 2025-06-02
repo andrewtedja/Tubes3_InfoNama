@@ -24,6 +24,19 @@ Install dependencies
 uv pip install -r requirements.txt
 ```
 
+Create Database
+```bash
+# 1. Create new .env file in root with this content:
+MYSQL_USER=your_username
+MYSQL_PASSWORD=your_password
+
+# 2. Run create_tables.py
+uv run src/database/create_tables.py
+
+# 3. Run seeder.py
+uv run src/database/seeder.py
+```
+
 ## How To Run
 Run the program
 ```bash
