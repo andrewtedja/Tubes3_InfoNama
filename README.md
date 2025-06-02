@@ -1,6 +1,6 @@
 # Tubes3_InfoNama
 
-## How To Run
+## How To Setup
 If uv has not been installed
 ```bash
 pipx install uv
@@ -19,6 +19,7 @@ source .venv/Scripts/activate
 source .venv/bin/activate
 ```
 
+## How To Run
 Run the program
 ```bash
 uv run main.py
