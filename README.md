@@ -19,6 +19,11 @@ source .venv/Scripts/activate
 source .venv/bin/activate
 ```
 
+Install dependencies
+```bash
+uv pip install -r requirements.txt
+```
+
 ## How To Run
 Run the program
 ```bash
