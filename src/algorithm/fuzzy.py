@@ -2,14 +2,18 @@
 # similarity
 # n-gram -> get how many consecutive words
 
-
+import re
 
 def get_ngrams(text, n):
     '''
-    Mengambil n-gram dari teks (consecutive words)
+    Mengambil n-gram dari teks (consecutive words), regex only alphanumeric
     '''
+    # remove non-alphanumeric, space/tab/newline masi ada
+    text = re.sub(r'[^\w\s]', '', text)
 
+    # convert to lowercase
     words = text.lower().split()
+
     result = [' '.join(words[i:i+n]) for i in range(len(words)-n+1)]
     # n=1 -> "React Native American" -> ["react", "native", "american"]
     # n=2 -> ["react native", "native american"]
@@ -89,11 +93,24 @@ def fuzzy_search(keyword, cv_text, threshold):
 # =========================== TESTING ===========================
 
 def main():
-    word1 = input("Masukkan kata/kalimat pertama: ").strip()
-    word2 = input("Masukkan kata/kalimat kedua: ").strip()
+    tc = [
+        ("react", "react"),
+        ("react", "recat"),
+        ("react", "re act"),
+        ("react", "react,"),
+        ("react", "React"),
+        ("react native", "react natve"),
+        ("state line", "st0te line"),
+        ("python dev", "pythons dev"),
+        ("data analyst", "data analysis"),
+        ("full stack", "full-stack")
+    ]
 
-    similarity = calculate_similarity(word1, word2)
-    print(f"\nSimilarity score: {similarity:.4f}")
+    for i, (word1, word2) in enumerate(tc, 1):
+        similarity = calculate_similarity(word1, word2)
+        print(f"Test case {i}: {word1} vs {word2}")
+        print(f"Similarity={similarity:.4f}")
+
 
 if __name__ == "__main__":
     main()
