@@ -1,9 +1,13 @@
+from fuzzy import fuzzy_search
+
 class KMP_ATS:
     def __init__(self):
         self.cv_text = ""
         self.keywords = []
-        self.results = {}
-    
+        self.exact_results = {}
+        self.fuzzy_results = {}
+        self.threshold = 0.65
+        
     def compute_lps(self, pattern):
         """
         Menghitung tabel LPS (Longest Proper Prefix)
@@ -75,26 +79,62 @@ class KMP_ATS:
         Mencari semua kata kunci dalam CV dengan algoritma KMP
         """
         self.keywords = [keyword.lower() for keyword in keywords]
-        self.results = {}
-        total_matches = 0
+        self.exact_results = {}
+        self.fuzzy_results = {}
+
+        total_exact_matches = 0
+        total_fuzzy_matches = 0
         
+        print("======= EXACT MATCHING (KMP) =======")
         for keyword in self.keywords:
-            matches = self.kmp_search(self.cv_text, keyword)
-            self.results[keyword] = matches
-            total_matches += matches
-        
-        return total_matches, self.results
+            print(f'\nFinding: "{keyword}"')
+
+            exact_matches = self.kmp_search(self.cv_text, keyword)
+            self.exact_results[keyword] = exact_matches
+            print(f"[DEBUG] exact_matches for '{keyword}': {exact_matches}") # DEBUG
+
+
+            total_exact_matches += exact_matches
+
+            # FUZZY MATCH if exact match not found
+            if (exact_matches == 0):
+                print("\n======= FUZZY MATCHING (KMP) =======\n")
+                print(f'Trying fuzzy matching for "${keyword}"')
+                fuzzy_count, fuzzy_matches = fuzzy_search(keyword, self.cv_text, self.threshold)
+
+                self.fuzzy_results[keyword] = {
+                    'count': fuzzy_count,
+                    'matches': fuzzy_matches
+                }
+                total_fuzzy_matches += fuzzy_count
+
+                if fuzzy_matches:
+                    print(f'Fuzzy matches ditemukan: {fuzzy_matches}')
+                else:
+                    print(f'Tidak ada fuzzy matches yang memenuhi threshold {self.threshold}')
+
+        return total_exact_matches, total_fuzzy_matches, self.exact_results, self.fuzzy_results
     
     def display_results(self):
         """
         Menampilkan hasil pencarian
         """
-        total = sum(self.results.values())
-        
-        print(f"\nTerdapat total {total} kesamaan")
-        for keyword, count in self.results.items():
-            print(f'Jumlah kesamaan pada "{keyword}" = {count}')
 
+        total_exact = sum(self.exact_results.values())
+        print(f"\n[EXACT] Terdapat total {total_exact} kesamaan")
+
+        if self.fuzzy_results:
+            total_fuzzy = sum([result['count'] for result in self.fuzzy_results.values()])
+            print(f"\n [FUZZY] Matches: {total_fuzzy} total")
+
+            for keyword, result in self.fuzzy_results.items():
+                if result['matches']:
+                    print(f'  "{keyword}": {result["count"]} matches')
+                    for match in result['matches']:
+                        print(f'    - {match}')
+
+
+        print(f"\nTOTAL MATCHES: {total_exact + sum([result['count'] for result in self.fuzzy_results.values()])}")
 
 def main():
     # Example use
@@ -106,6 +146,7 @@ def main():
     
     user_input = input("\nKata kunci (pisah dengan koma): ")
     keywords = [keyword.strip() for keyword in user_input.split(',')]
+    
     
     ats.search_keywords(keywords)
     ats.display_results()
