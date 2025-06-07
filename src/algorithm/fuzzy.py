@@ -15,7 +15,7 @@ class FuzzyMatcher:
         text = re.sub(r'[^\w\s]', '', text)
 
         # convert to lowercase
-        words = text.lower().split()
+        words = text.split()
 
         result = [' '.join(words[i:i+n]) for i in range(len(words)-n+1)]
         # n=1 -> "React Native American" -> ["react", "native", "american"]
@@ -74,7 +74,8 @@ class FuzzyMatcher:
         if threshold is None:
             threshold = self.threshold
 
-        n = len(keyword.split())
+        n = max(1, len(keyword.split()))
+
         ngrams = self.get_ngrams(cv_text, n)
 
 
@@ -85,8 +86,29 @@ class FuzzyMatcher:
             if similarity >= threshold:
                 matches.append((similarity, phrase))
 
+        if ' ' in keyword:
+            clean_keyword = keyword.replace(' ', '')
+            single_words = self.get_ngrams(cv_text, 1) # individual words
+
+            for word in single_words:
+                similarity = self.calculate_similarity(clean_keyword, word)
+                if similarity >= threshold:
+
+                    # Check if this match is already covered to avoid duplicates
+                    is_duplicate = any(word in existing_match[1] for existing_match in matches)
+                    if not is_duplicate:
+                        matches.append((similarity, word))
+
         matches.sort(reverse=True, key=lambda x: x[0])
-        return len(matches), matches
+        
+        unique_matches = []
+        seen_phrases = set()
+        for sim, phrase in matches:
+            if phrase not in seen_phrases:
+                unique_matches.append((sim, phrase))
+                seen_phrases.add(phrase)
+
+        return len(unique_matches), unique_matches
 
 
 # =========================== TESTING ===========================
@@ -95,12 +117,12 @@ def main():
     fm = FuzzyMatcher()
 
     tc = [
-        ("react", "react"),
+        ("re act", "react"),
         ("react", "recat"),
         ("react", "re act"),
         ("react", "react,"),
         ("react", "React"),
-        ("react native", "react natve"),
+        ("rea ct nat ive", "react natve"),
         ("state line", "st0te line"),
         ("python dev", "pythons dev"),
         ("data analyst", "data analysis"),

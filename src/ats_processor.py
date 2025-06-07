@@ -38,14 +38,21 @@ class ATSProcessor:
             total_exact += exact
 
             if exact == 0:
-                fuzzy_count, fuzzy_matches = self.fuzzy.fuzzy_search(keyword, self.cv_text)
+                fuzzy_count, fuzzy_matches = self.fuzzy.fuzzy_search(keyword, self.cv_text, self.fuzzy.threshold)
+
                 self.fuzzy_results[keyword] = {
                     'count': fuzzy_count,
                     'matches': fuzzy_matches
                 }
                 total_fuzzy += fuzzy_count
 
+                if fuzzy_matches:
+                    print(f'Fuzzy matches ditemukan: {fuzzy_matches}')
+                else:
+                    print(f'Tidak ada fuzzy matches yang memenuhi threshold')
+
         return total_exact, total_fuzzy
+
 
     def print_results(self):
         """Display exact and fuzzy results"""
@@ -63,23 +70,26 @@ class ATSProcessor:
                 if res['matches']:
                     print(f'  - "{kw}": {res["count"]} fuzzy match(es)')
                     for sim, phrase in res['matches']:
-                        print(f'     • "{phrase}" (similarity: {sim:.3f})')
-
+                        print(f'    - "{phrase}" (similarity: {sim:.3f})')
+        
         print("\n" + "=" * 50)
         print(f"TOTAL MATCHES: {total_exact + total_fuzzy}")
+
+        
 
 # ========== Example Use ==========
 
 if __name__ == "__main__":
     cv_text = """
-    Senior Software Engineer with 5+ years experience in Python, React Native American, and Node.js.
-    Expert in machine learning, data analysis, and full-stack development.
-    Strong background in cloud computing with AWS and Docker containerization.
+    react native american developer backend engineer
     """
+    
 
-    processor = ATSProcessor(fuzzy_threshold=0.7)
+    processor = ATSProcessor(fuzzy_threshold=0.65)
     processor.load_cv(cv_text)
 
     keywords = input("Enter keywords (comma-separated): ")
     processor.search_keywords(keywords)
+
+    print(f"Inputted keywords: {keywords}")
     processor.print_results()
