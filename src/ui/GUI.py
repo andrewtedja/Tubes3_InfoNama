@@ -26,7 +26,7 @@ class GUI:
             {
                 'id': 1,
                 'name': 'Asep', 
-                'cv_text': 'Senior developer in Chicago with experience in React Native, Express, and modern HTML. Loves Python.'
+                'cv_text': 'ahishers react native amErican'
             },
             {
                 'id': 2,
@@ -172,7 +172,7 @@ class GUI:
     def search_clicked(self, e):
         """Callback for the search button. Connect ke ATSProcessor"""
         self.results_grid.controls.clear()
-        self.search_status.value = "Scanning CVs..."
+        self.search_status.value = f"Scanning CVs with {self.selected_algorithm}..."
         self.page.update()
         
         keywords_str = self.keywords_input.value
