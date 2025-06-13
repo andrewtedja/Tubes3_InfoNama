@@ -3,7 +3,7 @@ class KMP_ATS:
     def __init__(self):
         pass
         
-    def compute_lps(self, pattern):
+    def compute_lps(self, pattern) -> list:
         """
         Menghitung tabel LPS (Longest Proper Prefix)
         untuk pattern yang diberikan
@@ -27,7 +27,7 @@ class KMP_ATS:
         
         return lps
     
-    def kmp_search(self, text, pattern):
+    def kmp_search(self, text, pattern) -> list:
         """
         Implementasi algoritma KMP untuk mencari semua kemunculan
         pattern dalam text
@@ -43,8 +43,9 @@ class KMP_ATS:
         
         # Compute LPS array
         lps = self.compute_lps(pattern)
-        
-        count = 0  # jumlah kecocokan
+
+
+        found_indexes = []
         i = 0  # index text
         j = 0  # index pattern
         
@@ -55,7 +56,8 @@ class KMP_ATS:
             
             if j == m:
                 # Pattern found
-                count += 1
+                start_index = i - j
+                found_indexes.append(start_index)
                 j = lps[j - 1]
             elif i < n and text[i] != pattern[j]:
                 # Mismatch
@@ -64,7 +66,7 @@ class KMP_ATS:
                 else:
                     i += 1
         
-        return count
+        return found_indexes
     
     
     # def search_keywords(self, keywords):

@@ -198,19 +198,26 @@ class GUI:
         # Loop through your CVs
         for cv in self.cv_dataset:
             self.processor.load_cv(cv['cv_text'])
-            total_exact, total_fuzzy = self.processor.search_keywords(keywords_str)
+            self.processor.search_keywords(keywords_str)
+
+            total_exact = sum(res.get('count', 0) for res in self.processor.exact_results.values())
+            total_fuzzy = sum(res.get('count', 0) for res in self.processor.fuzzy_results.values())
             total_matches = total_exact + total_fuzzy
 
             if total_matches > 0:
                 # Format the summary for the card display
                 summary_list = []
-                for kw, count in self.processor.exact_results.items():
-                    if count > 0:
-                        summary_list.append(f"{kw}: {count} (exact)")
+
+
+                for kw, res in self.processor.exact_results.items():
+                    summary_list.append(f"{kw}: {res['count']} (exact)")
                 
                 for kw, res in self.processor.fuzzy_results.items():
-                    if res['count'] > 0:
-                        summary_list.append(f"{kw}: {res['count']} (fuzzy)")
+                    unique_phrases = list(set([phrase for similar, phrase in res['matches']]))
+
+                    for phrase in unique_phrases:
+                        phrase_count = sum(1 for similar, p in res['matches'] if p == phrase)
+                        summary_list.append(f"'{phrase}': {phrase_count} (fuzzy for: {kw})")
                 
                 # Append formatted result
                 all_results.append({
