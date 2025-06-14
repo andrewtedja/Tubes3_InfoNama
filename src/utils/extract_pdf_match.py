@@ -3,7 +3,7 @@ import re
 from typing import Optional
 import PyPDF2
 
-def extract_pdf_for_string_matching(pdf_filename: str) -> str:
+def extract_pdf_for_string_matching(cv_path: str) -> str:
     """
     Search for a PDF file across role folders and extract its content to a long string.
     
@@ -15,7 +15,7 @@ def extract_pdf_for_string_matching(pdf_filename: str) -> str:
     """
     
     # Extract text
-    extracted_text = extract_text_from_pdf(pdf_filename)
+    extracted_text = extract_text_from_pdf(cv_path)
     
     # Process and clean text
     processed_text = _clean_text(extracted_text)
@@ -53,7 +53,7 @@ def find_pdf_file(pdf_filename: str) -> Optional[str]:
     return None
 
 
-def extract_text_from_pdf(pdf_filename: str) -> str:
+def extract_text_from_pdf(cv_path: str) -> str:
     """
     Extract text content from the PDF file.
     
@@ -65,18 +65,18 @@ def extract_text_from_pdf(pdf_filename: str) -> str:
     """
 
     # Search the PDF file
-    pdf_path = find_pdf_file(pdf_filename)
+    # pdf_path = find_pdf_file(pdf_filename)
     
-    if not pdf_path:
-        print(f"PDF file '{pdf_filename}' not found in any role folder")
-        return ""
+    # if not pdf_path:
+    #     print(f"PDF file '{pdf_filename}' not found in any role folder")
+    #     return ""
     
-    print(f"Found PDF: {pdf_path}")
+    # print(f"Found PDF: {pdf_path}")
     
     extracted_text = ""
 
     try:
-        with open(pdf_path, 'rb') as file:
+        with open(cv_path, 'rb') as file:
             pdf_reader = PyPDF2.PdfReader(file)
             
             for page_num in range(len(pdf_reader.pages)):
@@ -90,9 +90,9 @@ def extract_text_from_pdf(pdf_filename: str) -> str:
                 return extracted_text
     
     except Exception as e:
-        print(f"PyPDF2 failed: {str(e)}")
+        print(f"Error: {str(e)}")
     
-    print(f"Failed to extract text from PDF: {pdf_path}")
+    print(f"Failed to extract text from PDF: {cv_path}")
     return ""
 
 
@@ -114,7 +114,7 @@ def _clean_text(text: str) -> str:
     text = re.sub(r'\s+', ' ', text)
     
     # Strip
-    text = text.strip()
+    text = text.strip().lower()
     
     return text
 

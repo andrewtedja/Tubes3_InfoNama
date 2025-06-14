@@ -5,6 +5,7 @@ import os
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from ats_processor import ATSProcessor
+from database import loader
 
 class GUI:
     def __init__(self, page: ft.Page):
@@ -21,24 +22,8 @@ class GUI:
         # =================== ATS Processor ===================
         self.processor = ATSProcessor(fuzzy_threshold=0.65)
 
-        # Nanti ini yang di ganti sama data dari DB
-        self.cv_dataset = [
-            {
-                'id': 1,
-                'name': 'Asep', 
-                'cv_text': 'ahishers react native amErican'
-            },
-            {
-                'id': 2,
-                'name': 'Lababo', 
-                'cv_text': 'Junior developer from Tennessee skilled in React Native American and Python, Loves SQL.'
-            },
-            {
-                'id': 3,
-                'name': 'Kolman', 
-                'cv_text': 'Project manager in New York who uses Express for backend services. Familiar with SQL databases.'
-            }
-        ]
+        # =================== Load DB ===================
+        self.cv_dataset = loader.load_all_data()
 
         # ==================== KEYWORDS INPUT =======================
         self.keywords_input = ft.TextField(
@@ -197,7 +182,7 @@ class GUI:
 
         # Loop through your CVs
         for cv in self.cv_dataset:
-            self.processor.load_cv(cv['cv_text'])
+            self.processor.load_cv(cv['cv_path'])
             self.processor.search_keywords(keywords_str)
 
             total_exact = sum(res.get('count', 0) for res in self.processor.exact_results.values())
@@ -221,7 +206,7 @@ class GUI:
                 
                 # Append formatted result
                 all_results.append({
-                    'name': cv['name'],
+                    'name': cv['first_name'] + cv['last_name'],
                     'match_count': total_matches,
                     'summary': summary_list
                 })

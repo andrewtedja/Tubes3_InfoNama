@@ -2,6 +2,7 @@ from algorithm.kmp import KMP_ATS
 from algorithm.bm import BM_ATS
 from algorithm.aho import AHO_ATS
 from algorithm.fuzzy import FuzzyMatcher
+from utils.extract_pdf_match import extract_pdf_for_string_matching
 
 class ATSProcessor:
     def __init__(self, fuzzy_threshold=0.65, algorithm="KMP"):
@@ -24,9 +25,9 @@ class ATSProcessor:
             print(f"Algorithm '{algo_name}' not recognized. Defaulting to KMP.")
             self.algorithm = "KMP"
 
-    def load_cv(self, cv_text: str):
-        """Normalize cv text jadi lowercase without awal and end space"""
-        self.cv_text = cv_text.strip().lower() if cv_text else ""
+    def load_cv(self, cv_path: str):
+        """Load CV text content (cleaned long string) from its cv_path"""
+        self.cv_text = extract_pdf_for_string_matching(cv_path)
 
     def parse_keywords(self, raw_input: str) -> list:
         """
