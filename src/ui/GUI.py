@@ -2,6 +2,8 @@ import flet as ft
 import time
 import sys
 import os
+import webbrowser
+from pathlib import Path
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from ats_processor import ATSProcessor
@@ -192,6 +194,7 @@ class GUI:
         else:
             for result in top_results:
                 card = self.create_result_card(
+                    data = result['data'],
                     name=result['name'],
                     match_count=result['match_count'],
                     matched_keywords_summary=result['summary']
@@ -204,7 +207,7 @@ class GUI:
         self.results_grid.height = rows_needed * 380
         self.page.update()
 
-    def create_result_card(self, name, match_count, matched_keywords_summary):
+    def create_result_card(self, data, name, match_count, matched_keywords_summary):
         """Display card search result."""
         keywords_display_list = [
             ft.Text(f"• {item}", size=12, color="#8D847D") for item in matched_keywords_summary
@@ -235,7 +238,7 @@ class GUI:
                         controls=[
                             ft.OutlinedButton(
                                 text="View CV", icon=ft.Icons.DESCRIPTION_OUTLINED,
-                                on_click=lambda e, n=name: self.view_cv_clicked(n),
+                                on_click=lambda e, cv_path=data['cv_path']: self.view_cv_clicked(cv_path),
                                 style=ft.ButtonStyle(color="#141414", side=ft.BorderSide(1, "#141414"))
                             ),
 
@@ -253,9 +256,29 @@ class GUI:
     # Nanti navigate ke halaman summary
     # def view_summary_clicked(self, applicant_name):
 
-    def view_cv_clicked(self, applicant_name):
-        """Placeholder logic for opening the CV file."""
-        print(f"Logic to find and open the CV file for {applicant_name} goes here.")
+    def view_cv_clicked(self, cv_path):
+        """Open the CV file in web browser."""
+        
+        if cv_path:
+            try:
+                abs_path = os.path.abspath(cv_path)
+                
+                if os.path.exists(abs_path):
+                    file_url = Path(abs_path).as_uri()
+                    webbrowser.open(file_url)
+                    print(f"Opening CV: {abs_path}")
+                else:
+                    print(f"CV file not found: {abs_path}")
+                    self.search_status.value = f"CV file not found"
+                    self.page.update()
+            except Exception as ex:
+                print(f"Error opening CV: {ex}")
+                self.search_status.value = f"Error opening CV"
+                self.page.update()
+        else:
+            print(f"No CV path found")
+            self.search_status.value = f"No CV found"
+            self.page.update()
 
     def view_summary_clicked(self,applicant_name):
         """Placeholder logic for viewing the summary"""
