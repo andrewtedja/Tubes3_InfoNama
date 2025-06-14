@@ -92,7 +92,11 @@ def extract_text_from_pdf(cv_path: str) -> str:
     except Exception as e:
         print(f"Error: {str(e)}")
     
-    print(f"Failed to extract text from PDF: {cv_path}")
+    if (extracted_text == ""):
+        print(f"This pdf file is empty: {cv_path}")
+    else:
+        print(f"Failed to extract text from PDF: {cv_path}")
+        
     return ""
 
 
