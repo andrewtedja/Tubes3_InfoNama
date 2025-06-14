@@ -139,6 +139,7 @@ class GUI:
     def on_algo_change(self, selected: str):
         self.selected_algorithm = selected
         self.selected_algo_text.value = f"Current Algorithm: {selected}"
+        self.processor.set_algorithm(selected)
         self.update_algo_buttons()
         self.page.update()
 
@@ -296,6 +297,10 @@ class GUI:
     def view_cv_clicked(self, applicant_name):
         """Placeholder logic for opening the CV file."""
         print(f"Logic to find and open the CV file for {applicant_name} goes here.")
+
+    def view_summary_clicked(self,applicant_name):
+        """Placeholder logic for viewing the summary"""
+        print(f"Logic to find and view the summarized CV for {applicant_name} goes here.")
 
     def build_ui(self):
         """Builds the main layout of the application."""

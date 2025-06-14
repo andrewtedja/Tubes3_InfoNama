@@ -1,14 +1,25 @@
 from algorithm.kmp import KMP_ATS
+from algorithm.bm import BM_ATS
 from algorithm.fuzzy import FuzzyMatcher
 
 class ATSProcessor:
-    def __init__(self, fuzzy_threshold=0.65):
+    def __init__(self, fuzzy_threshold=0.65, algorithm="KMP"):
         self.kmp = KMP_ATS()
+        self.bm = BM_ATS()
         self.fuzzy = FuzzyMatcher(fuzzy_threshold)
         self.cv_text = ""
+        self.algorithm = algorithm
         self.keywords = []
         self.exact_results = {}
         self.fuzzy_results = {}
+
+    def set_algorithm(self, algo_name: str):
+        """Ubah algoritma pencocokan exact (KMP / BM)"""
+        if algo_name in ["KMP", "BM"]:
+            self.algorithm = algo_name.upper()
+        else:
+            print(f"Algorithm '{algo_name}' not recognized. Defaulting to KMP.")
+            self.algorithm = "KMP"
 
     def load_cv(self, cv_text: str):
         """Normalize cv text jadi lowercase without awal and end space"""
@@ -33,7 +44,11 @@ class ATSProcessor:
         total_fuzzy = 0
 
         for keyword in self.keywords:
-            exact = self.kmp.kmp_search(self.cv_text, keyword)
+            if self.algorithm == "BM":
+                exact = self.bm.bm_search(self.cv_text, keyword)
+            else:
+                exact = self.kmp.kmp_search(self.cv_text, keyword)
+
             self.exact_results[keyword] = exact
             total_exact += exact
 
@@ -81,15 +96,21 @@ class ATSProcessor:
 
 if __name__ == "__main__":
     cv_text = """
-    react native american developer backend engineer
+    react native american developer backend engineer skilled in python and sql
     """
-    
 
-    processor = ATSProcessor(fuzzy_threshold=0.65)
+    print("Available algorithms: KMP, BM")
+    selected_algo = input("Choose algorithm (KMP/BM): ").strip().upper()
+    if selected_algo not in ["KMP", "BM"]:
+        print("Invalid choice. Defaulting to KMP.")
+        selected_algo = "KMP"
+
+    processor = ATSProcessor(fuzzy_threshold=0.65, algorithm=selected_algo)
     processor.load_cv(cv_text)
 
     keywords = input("Enter keywords (comma-separated): ")
-    processor.search_keywords(keywords)
+    total_exact, total_fuzzy = processor.search_keywords(keywords)
 
+    print(f"\nAlgorithm used: {selected_algo}")
     print(f"Inputted keywords: {keywords}")
     processor.print_results()
