@@ -1,8 +1,5 @@
 import time
-import threading
 
-from concurrent.futures import ThreadPoolExecutor, as_completed
-from copy import deepcopy
 from algorithm.kmp import KMP_ATS
 from algorithm.bm import BM_ATS
 from algorithm.aho import AHO_ATS
@@ -174,10 +171,6 @@ class ATSProcessor:
         all_results = []
         self.keywords = self.parse_keywords(keywords_str)
         found_exact_keywords = []
-
-        # Thread lock for collecting found keywords
-        keyword_lock = threading.Lock()
-        results_lock = threading.Lock()
 
         # Exact Match
         # Exact match start time
