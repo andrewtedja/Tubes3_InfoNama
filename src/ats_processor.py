@@ -68,14 +68,14 @@ class ATSProcessor:
 
     # ======================== SEARCH ========================
 
-    def search_keywords(self, keywords: str) -> dict:
+    def search_exact(self) -> dict:
         """
         Algo untuk cari exact match
         
         Returns:
             dict: (total_exact, found_exact_keywords)
         """
-        self.keywords = self.parse_keywords(keywords)
+        # self.keywords = self.parse_keywords(keywords)
         self.exact_results = {}
 
         # AHO
@@ -124,19 +124,19 @@ class ATSProcessor:
         print(f"Total exact matches: {total_exact}")
         return (total_exact, found_exact_keywords)
     
-    def search_keywords_fuzzy(self, keywords: str) -> dict:
+    def search_fuzzy(self, found_exact_keywords) -> dict:
         """Algo untuk cari fuzzy match"""
-        self.keywords = self.parse_keywords(keywords)
+        # self.keywords = self.parse_keywords(keywords)
         self.fuzzy_results = {}
 
         for keyword in self.keywords:
-            # if keyword not in found_exact_keywords:
-            fuzzy_count, fuzzy_matches = self.fuzzy.fuzzy_search(keyword, self.cv_text, self.fuzzy.threshold)
-            if fuzzy_count > 0:
-                self.fuzzy_results[keyword] = {
-                    'count': fuzzy_count,
-                    'matches': fuzzy_matches
-                }
+            if keyword not in found_exact_keywords:
+                fuzzy_count, fuzzy_matches = self.fuzzy.fuzzy_search(keyword, self.cv_text, self.fuzzy.threshold)
+                if fuzzy_count > 0:
+                    self.fuzzy_results[keyword] = {
+                        'count': fuzzy_count,
+                        'matches': fuzzy_matches
+                    }
 
         total_fuzzy = sum(res.get('count', 0) for res in self.fuzzy_results.values())
 

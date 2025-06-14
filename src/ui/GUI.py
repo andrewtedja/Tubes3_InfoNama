@@ -174,15 +174,15 @@ class GUI:
             # self.populate_dummy_grid()
             return
         
-        # Store all results
+        # Store
         all_results = []
-            
-        # NANTI BISA TAMBA IF/ELSE BUAT self.selected_algorithm
+        self.processor.keywords = self.processor.parse_keywords(keywords_str)
+        found_exact_keywords = []
 
         # Exact Match
         for cv in self.cv_dataset:
             self.processor.load_cv(cv['cv_path'])
-            self.processor.search_keywords(keywords_str)
+            self.processor.search_exact()
             total_matches = sum(res.get('count', 0) for res in self.processor.exact_results.values())
 
             if total_matches > 0:
@@ -197,17 +197,25 @@ class GUI:
                     'match_count': total_matches,
                     'summary': summary_list
                 })
+
+            # found_exact_keywords
+            for keyword in self.processor.exact_results.keys() :
+                if keyword not in found_exact_keywords:
+                    found_exact_keywords.append(keyword)
         
         # Sort exact results
         sorted_exact_results = sorted(all_results, key=lambda x: x['match_count'], reverse=True)
-        
 
         # Fuzzy Match
         fuzzy_results = []
         if (len(all_results) < top_n):
+            # Reset found_exact_keywords if all keywords already found
+            if len(self.processor.keywords) <= len(found_exact_keywords):
+                found_exact_keywords = []
+
             for cv in self.cv_dataset: 
                 self.processor.load_cv(cv['cv_path'])
-                self.processor.search_keywords_fuzzy(keywords_str)
+                self.processor.search_fuzzy(found_exact_keywords)
                 total_matches = sum(res.get('count', 0) for res in self.processor.fuzzy_results.values())
 
                 if total_matches > 0:
