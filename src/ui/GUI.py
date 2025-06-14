@@ -178,10 +178,9 @@ class GUI:
             top_n, keywords_str, self.cv_dataset)
 
         # Display the results
-        self.search_status.value = f"""
-            Found {len(top_results)} relevant CVs.
-            Exact Match: {len(self.cv_dataset)} CVs scanned in {exact_match_time}ms.\n
-        """
+        self.search_status.value = f"Found {len(top_results)} relevant CVs.\n"
+        self.search_status.value += f"Exact Match: {len(self.cv_dataset)} CVs scanned in {exact_match_time}ms.\n"
+        
         if (fuzzy_match_time > 0):
             self.search_status.value += f"Fuzzy Match: {len(self.cv_dataset)} CVs scanned in {fuzzy_match_time}ms."
 
