@@ -13,7 +13,7 @@ To connect with venv
 uv venv # If venv has not been created
 
 # For Windows
-source .venv/Scripts/activate
+.venv/Scripts/activate
 
 # For UNIX
 source .venv/bin/activate
@@ -40,5 +40,5 @@ uv run src/database/seeder.py
 ## How To Run
 Run the program
 ```bash
-uv run main.py
+uv run src/main.py
 ```
