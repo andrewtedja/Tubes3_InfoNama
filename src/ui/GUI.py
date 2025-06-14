@@ -174,46 +174,67 @@ class GUI:
             # self.populate_dummy_grid()
             return
         
-        # STORE ALL RESULTS ARRAY
+        # Store all results
         all_results = []
             
         # NANTI BISA TAMBA IF/ELSE BUAT self.selected_algorithm
 
-
-        # Loop through your CVs
+        # Exact Match
         for cv in self.cv_dataset:
             self.processor.load_cv(cv['cv_path'])
             self.processor.search_keywords(keywords_str)
-
-            total_exact = sum(res.get('count', 0) for res in self.processor.exact_results.values())
-            total_fuzzy = sum(res.get('count', 0) for res in self.processor.fuzzy_results.values())
-            total_matches = total_exact + total_fuzzy
+            total_matches = sum(res.get('count', 0) for res in self.processor.exact_results.values())
 
             if total_matches > 0:
-                # Format the summary for the card display
                 summary_list = []
-
 
                 for kw, res in self.processor.exact_results.items():
                     summary_list.append(f"{kw}: {res['count']} (exact)")
                 
-                for kw, res in self.processor.fuzzy_results.items():
-                    unique_phrases = list(set([phrase for similar, phrase in res['matches']]))
-
-                    for phrase in unique_phrases:
-                        phrase_count = sum(1 for similar, p in res['matches'] if p == phrase)
-                        summary_list.append(f"'{phrase}': {phrase_count} (fuzzy for: {kw})")
-                
                 # Append formatted result
                 all_results.append({
-                    'name': cv['first_name'] + cv['last_name'],
+                    'name': cv['first_name'] + " " + cv['last_name'],
                     'match_count': total_matches,
                     'summary': summary_list
                 })
+        
+        # Sort exact results
+        sorted_exact_results = sorted(all_results, key=lambda x: x['match_count'], reverse=True)
+        
 
-        # ================ Sort results by the highest match count ================
-        sorted_results = sorted(all_results, key=lambda x: x['match_count'], reverse=True)
-        top_results = sorted_results[:top_n]
+        # Fuzzy Match
+        fuzzy_results = []
+        if (len(all_results) < top_n):
+            for cv in self.cv_dataset: 
+                self.processor.load_cv(cv['cv_path'])
+                self.processor.search_keywords_fuzzy(keywords_str)
+                total_matches = sum(res.get('count', 0) for res in self.processor.fuzzy_results.values())
+
+                if total_matches > 0:
+                    summary_list = []
+                    
+                    for kw, res in self.processor.fuzzy_results.items():
+                        unique_phrases = list(set([phrase for similar, phrase in res['matches']]))
+
+                        for phrase in unique_phrases:
+                            phrase_count = sum(1 for similar, p in res['matches'] if p == phrase)
+                            summary_list.append(f"'{phrase}': {phrase_count} (fuzzy for: {kw})")
+                    
+                    fuzzy_results.append({
+                        'name': cv['first_name'] + " " + cv['last_name'],
+                        'match_count': total_matches,
+                        'summary': summary_list
+                    })
+
+            # Update sorted_exact_results  
+            sorted_fuzzy_results = sorted(fuzzy_results, key=lambda x: x['match_count'], reverse=True)
+            remaining_result_count = top_n - len(all_results)
+            top_fuzzy_results = sorted_fuzzy_results[:remaining_result_count]
+            sorted_exact_results += top_fuzzy_results
+
+        
+        # Top results
+        top_results = sorted_exact_results[:top_n]
         
         # Display the results
         self.search_status.value = f"Found {len(top_results)} relevant CVs."
