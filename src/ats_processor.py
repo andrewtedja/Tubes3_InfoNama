@@ -177,6 +177,10 @@ class ATSProcessor:
         exact_start_time = time.time()
         for cv in cv_dataset:
             self.load_cv(cv['cv_path'])
+            if (self.cv_text == ""):
+                print("Skip empty CV process")
+                continue
+
             self.search_exact()
             total_matches = sum(res.get('count', 0) for res in self.exact_results.values())
 
