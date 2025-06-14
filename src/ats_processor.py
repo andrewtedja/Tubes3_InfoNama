@@ -192,6 +192,7 @@ class ATSProcessor:
                 
                 # Append formatted result
                 all_results.append({
+                    'data': cv,
                     'name': cv['first_name'] + " " + cv['last_name'],
                     'match_count': total_matches,
                     'summary': summary_list
@@ -236,6 +237,7 @@ class ATSProcessor:
                             summary_list.append(f"'{phrase}': {phrase_count} (fuzzy for: {kw})")
                     
                     fuzzy_results.append({
+                        'data': cv,
                         'name': cv['first_name'] + " " + cv['last_name'],
                         'match_count': total_matches,
                         'summary': summary_list
