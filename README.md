@@ -33,7 +33,10 @@ MYSQL_PASSWORD=your_password
 # 2. Run create_tables.py
 uv run src/database/create_tables.py
 
-# 3. Run seeder.py
+# 3. Run official_seeder.py
+uv run src/database/official_seeder.py
+
+# or run the random seeder.py
 uv run src/database/seeder.py
 ```
 
