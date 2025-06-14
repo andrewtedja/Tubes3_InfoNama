@@ -41,7 +41,7 @@ class GUI:
         )
 
         # Buat selected
-        self.selected_algorithm = "KMP"  
+        self.selected_algorithm = "KMP"
         self.search_algo_buttons = ft.Row(spacing=10)
         self.update_algo_buttons()
 
@@ -60,7 +60,6 @@ class GUI:
             text_style=ft.TextStyle(color="#4a4441"),
         )
 
-
         # ==================== SEARCH =======================
         self.search_button = ft.ElevatedButton(
             text="Search",
@@ -70,13 +69,14 @@ class GUI:
             style=ft.ButtonStyle(
                 shape=ft.RoundedRectangleBorder(radius=8),
                 padding=15,
-                bgcolor="#141414",  
+                bgcolor="#141414",
                 color=ft.Colors.WHITE,
             )
         )
-        self.search_status = ft.Text("Enter keywords to begin your search.", color="#8D847D") 
+        self.search_status = ft.Text(
+            "Enter keywords to begin your search.", color="#8D847D")
         self.results_grid = ft.GridView(
-            expand=False, 
+            expand=False,
             runs_count=3,
             max_extent=280,
             child_aspect_ratio=0.75,
@@ -90,7 +90,6 @@ class GUI:
             italic=True,
         )
 
-
         # DISPLAY UI
         self.page.add(self.build_ui())
 
@@ -99,27 +98,27 @@ class GUI:
 
     # ==================== SELECT ALGO TOGGLE =====================
     def update_algo_buttons(self):
-            """Rebuilds the search algorithm buttons with style depending on selection."""
-            def make_algo_button(label: str) -> ft.TextButton:
-                is_selected = self.selected_algorithm == label
-                return ft.TextButton(
-                    text=label,
-                    on_click=lambda e, l=label: self.on_algo_change(l),
-                    style=ft.ButtonStyle(
-                        bgcolor="#141414" if is_selected else "#FFFFFF",
-                        color="#FFFFFF" if is_selected else "#4a4441",
-                        shape=ft.RoundedRectangleBorder(radius=8),
-                        side=ft.BorderSide(color="#141414", width=1),
-                        padding=ft.padding.symmetric(horizontal=20, vertical=10),
-                    )
+        """Rebuilds the search algorithm buttons with style depending on selection."""
+        def make_algo_button(label: str) -> ft.TextButton:
+            is_selected = self.selected_algorithm == label
+            return ft.TextButton(
+                text=label,
+                on_click=lambda e, l=label: self.on_algo_change(l),
+                style=ft.ButtonStyle(
+                    bgcolor="#141414" if is_selected else "#FFFFFF",
+                    color="#FFFFFF" if is_selected else "#4a4441",
+                    shape=ft.RoundedRectangleBorder(radius=8),
+                    side=ft.BorderSide(color="#141414", width=1),
+                    padding=ft.padding.symmetric(horizontal=20, vertical=10),
                 )
+            )
 
-            self.search_algo_buttons.controls = [
-                make_algo_button("KMP"),
-                make_algo_button("BM"),
-                make_algo_button("Aho-Corasick")
-            ]
-            self.page.update()
+        self.search_algo_buttons.controls = [
+            make_algo_button("KMP"),
+            make_algo_button("BM"),
+            make_algo_button("Aho-Corasick")
+        ]
+        self.page.update()
 
     def on_algo_change(self, selected: str):
         self.selected_algorithm = selected
@@ -140,7 +139,7 @@ class GUI:
     #         {'name': 'Cici', 'count': 2, 'summary': ['HTML: 1', 'CSS: 1']},
     #         {'name': 'Dani', 'count': 2, 'summary': ['Express: 1', 'Node.js: 1']},
     #     ]
-        
+
     #     self.results_grid.controls.clear()
     #     for file in dummy_files:
     #         card = self.create_result_card(
@@ -149,7 +148,7 @@ class GUI:
     #             matched_keywords_summary=file['summary']
     #         )
     #         self.results_grid.controls.append(card)
-        
+
     #     self.results_grid.height = (len(self.results_grid.controls) / self.results_grid.runs_count) * 380
     #     self.page.update()
 
@@ -159,7 +158,7 @@ class GUI:
         self.results_grid.controls.clear()
         self.search_status.value = f"Scanning CVs with {self.selected_algorithm}..."
         self.page.update()
-        
+
         keywords_str = self.keywords_input.value
 
         try:
@@ -173,79 +172,19 @@ class GUI:
             self.search_status.value = "Please enter keywords to search."
             # self.populate_dummy_grid()
             return
-        
-        # Store
-        all_results = []
-        self.processor.keywords = self.processor.parse_keywords(keywords_str)
-        found_exact_keywords = []
 
-        # Exact Match
-        for cv in self.cv_dataset:
-            self.processor.load_cv(cv['cv_path'])
-            self.processor.search_exact()
-            total_matches = sum(res.get('count', 0) for res in self.processor.exact_results.values())
-
-            if total_matches > 0:
-                summary_list = []
-
-                for kw, res in self.processor.exact_results.items():
-                    summary_list.append(f"{kw}: {res['count']} (exact)")
-                
-                # Append formatted result
-                all_results.append({
-                    'name': cv['first_name'] + " " + cv['last_name'],
-                    'match_count': total_matches,
-                    'summary': summary_list
-                })
-
-            # found_exact_keywords
-            for keyword in self.processor.exact_results.keys() :
-                if keyword not in found_exact_keywords:
-                    found_exact_keywords.append(keyword)
-        
-        # Sort exact results
-        sorted_exact_results = sorted(all_results, key=lambda x: x['match_count'], reverse=True)
-
-        # Fuzzy Match
-        fuzzy_results = []
-        if (len(all_results) < top_n):
-            # Reset found_exact_keywords if all keywords already found
-            if len(self.processor.keywords) <= len(found_exact_keywords):
-                found_exact_keywords = []
-
-            for cv in self.cv_dataset: 
-                self.processor.load_cv(cv['cv_path'])
-                self.processor.search_fuzzy(found_exact_keywords)
-                total_matches = sum(res.get('count', 0) for res in self.processor.fuzzy_results.values())
-
-                if total_matches > 0:
-                    summary_list = []
-                    
-                    for kw, res in self.processor.fuzzy_results.items():
-                        unique_phrases = list(set([phrase for similar, phrase in res['matches']]))
-
-                        for phrase in unique_phrases:
-                            phrase_count = sum(1 for similar, p in res['matches'] if p == phrase)
-                            summary_list.append(f"'{phrase}': {phrase_count} (fuzzy for: {kw})")
-                    
-                    fuzzy_results.append({
-                        'name': cv['first_name'] + " " + cv['last_name'],
-                        'match_count': total_matches,
-                        'summary': summary_list
-                    })
-
-            # Update sorted_exact_results  
-            sorted_fuzzy_results = sorted(fuzzy_results, key=lambda x: x['match_count'], reverse=True)
-            remaining_result_count = top_n - len(all_results)
-            top_fuzzy_results = sorted_fuzzy_results[:remaining_result_count]
-            sorted_exact_results += top_fuzzy_results
-
-        
         # Top results
-        top_results = sorted_exact_results[:top_n]
-        
+        top_results, exact_match_time, fuzzy_match_time = self.processor.get_top_search_results(
+            top_n, keywords_str, self.cv_dataset)
+
         # Display the results
-        self.search_status.value = f"Found {len(top_results)} relevant CVs."
+        self.search_status.value = f"""
+            Found {len(top_results)} relevant CVs.
+            Exact Match: {len(self.cv_dataset)} CVs scanned in {exact_match_time}ms.\n
+        """
+        if (fuzzy_match_time > 0):
+            self.search_status.value += f"Fuzzy Match: {len(self.cv_dataset)} CVs scanned in {fuzzy_match_time}ms."
+
         if not top_results:
             self.results_grid.controls.append(ft.Container(
                 content=ft.Text("No matching CVs found."),
@@ -259,12 +198,12 @@ class GUI:
                     matched_keywords_summary=result['summary']
                 )
                 self.results_grid.controls.append(card)
-        
+
         # Adjust grid height based on =>  num of results
-        rows_needed = (len(self.results_grid.controls) + self.results_grid.runs_count - 1) // self.results_grid.runs_count
+        rows_needed = (len(self.results_grid.controls) +
+                       self.results_grid.runs_count - 1) // self.results_grid.runs_count
         self.results_grid.height = rows_needed * 380
         self.page.update()
-
 
     def create_result_card(self, name, match_count, matched_keywords_summary):
         """Display card search result."""
