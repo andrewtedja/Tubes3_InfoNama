@@ -41,7 +41,10 @@ uv run src/utils/rsa.py
 # You can use the provided .env.example file as a template:
 cp .env.example .env
 
-# 3. Seed the database (creates tables + inserts + encryption)
+# 3. Create database and tables if hasn't been created
+uv run src/database/create_tables.py
+
+# 4. Seed the database (creates tables + inserts + encryption)
 uv run src/database/official_seeder.py
 
 # or use the random seeder:
