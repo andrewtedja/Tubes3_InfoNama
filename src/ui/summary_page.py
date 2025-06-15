@@ -53,7 +53,7 @@ class SummaryPage:
 
         # Date formatting
         if hasattr(birthdate, 'strftime'):
-            birthdate = birthdate.strftime('%Y-%m-%d')
+            birthdate = birthdate.strftime('%d-%m-%Y')
 
         return ft.Container(
             width=850,
