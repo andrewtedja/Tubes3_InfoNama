@@ -246,7 +246,7 @@ def group_experience(experience_text: str) -> List[Dict[str, any]]:
         # Collect experience points
         elif current_experience and is_sentence(line) and not is_title_case_line(line):
             j = i + 1
-            while j < len(lines) and not line.endswith('.'):
+            while j < len(lines) and not re.search(r'\.$', line):
                 next_line = lines[j]
                 line += next_line
                 j += 1
