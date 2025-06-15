@@ -200,12 +200,12 @@ def group_experience(experience_text: str) -> List[Dict[str, any]]:
         if not words:
             return False
         # Check if most words (at least 70%) start with capital letter
-        capital_words = sum(1 for word in words if word and word[0].isupper())
+        capital_words = sum(1 for word in words if word and re.match(r'^[A-Z]', word))
         return capital_words / len(words) >= 0.7
 
     def is_sentence(line: str) -> bool:
         """Check if line is a sentence (starts with capital, ends with period/punctuation)"""
-        return line and line[0].isupper() and (line.endswith('.') or line.endswith(',') or len(line) > 50)
+        return line and re.match(r'^[A-Z]', line) and (re.search(r'[.,:!?]$', line) or len(line) > 50)
 
     i = 0
     while i < len(lines):
