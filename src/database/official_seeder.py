@@ -1,7 +1,7 @@
 import os
 import mysql.connector
 from dotenv import load_dotenv
-from database.rsa import rsa_encrypt
+from rsa import rsa_encrypt
 
 def seed_data():
     load_dotenv()
