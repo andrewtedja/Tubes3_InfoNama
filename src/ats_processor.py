@@ -1,7 +1,10 @@
+import time
+
 from algorithm.kmp import KMP_ATS
 from algorithm.bm import BM_ATS
 from algorithm.aho import AHO_ATS
 from algorithm.fuzzy import FuzzyMatcher
+from utils.extract_pdf_match import extract_pdf_for_string_matching
 
 class ATSProcessor:
     def __init__(self, fuzzy_threshold=0.65, algorithm="KMP"):
@@ -24,9 +27,9 @@ class ATSProcessor:
             print(f"Algorithm '{algo_name}' not recognized. Defaulting to KMP.")
             self.algorithm = "KMP"
 
-    def load_cv(self, cv_text: str):
-        """Normalize cv text jadi lowercase without awal and end space"""
-        self.cv_text = cv_text.strip().lower() if cv_text else ""
+    def load_cv(self, cv_path: str):
+        """Load CV text content (cleaned long string) from its cv_path"""
+        self.cv_text = extract_pdf_for_string_matching(cv_path)
 
     def parse_keywords(self, raw_input: str) -> list:
         """
@@ -67,11 +70,15 @@ class ATSProcessor:
 
     # ======================== SEARCH ========================
 
-    def search_keywords(self, keywords: str) -> dict:
-        """Algonya untuk cari exact match dan kalau gabisa -> fuzzy match"""
-        self.keywords = self.parse_keywords(keywords)
+    def search_exact(self) -> dict:
+        """
+        Algo untuk cari exact match
+        
+        Returns:
+            dict: (total_exact, found_exact_keywords)
+        """
+        # self.keywords = self.parse_keywords(keywords)
         self.exact_results = {}
-        self.fuzzy_results = {}
 
         # AHO
         if self.algorithm == "Aho-Corasick":
@@ -88,25 +95,12 @@ class ATSProcessor:
                         'matches': [keyword] * len(indices)
                     }
 
-            # FUZZY
             found_exact_keywords = set(self.exact_results.keys())
-            for keyword in self.keywords:
-                if keyword not in found_exact_keywords:
-                    fuzzy_count, fuzzy_matches = self.fuzzy.fuzzy_search(keyword, self.cv_text, self.fuzzy.threshold)
-                    if fuzzy_count > 0:
-                        self.fuzzy_results[keyword] = {
-                            'count': fuzzy_count,
-                            'matches': fuzzy_matches
-                        }
-
-            # Calculate totals
             total_exact = sum(res.get('count', 0) for res in self.exact_results.values())
-            total_fuzzy = sum(res.get('count', 0) for res in self.fuzzy_results.values())
             
             print(f"Total exact matches: {total_exact}")
-            print(f"Total fuzzy matches: {total_fuzzy}")
             
-            return (total_exact, total_fuzzy)
+            return (total_exact, found_exact_keywords)
         
         # KMP/BM
         else: 
@@ -127,8 +121,15 @@ class ATSProcessor:
 
         # simpen exact match
         found_exact_keywords = self.exact_results.keys()
+        total_exact = sum(res.get('count', 0) for res in self.exact_results.values())
 
-        # ========================== FUZZY MATCH ==========================
+        print(f"Total exact matches: {total_exact}")
+        return (total_exact, found_exact_keywords)
+    
+    def search_fuzzy(self, found_exact_keywords) -> dict:
+        """Algo untuk cari fuzzy match"""
+        # self.keywords = self.parse_keywords(keywords)
+        self.fuzzy_results = {}
 
         for keyword in self.keywords:
             if keyword not in found_exact_keywords:
@@ -139,12 +140,123 @@ class ATSProcessor:
                         'matches': fuzzy_matches
                     }
 
-        total_exact = sum(res.get('count', 0) for res in self.exact_results.values())
         total_fuzzy = sum(res.get('count', 0) for res in self.fuzzy_results.values())
 
-        print(f"Total exact matches: {total_exact}")
         print(f"Total fuzzy matches: {total_fuzzy}")
-        return (total_exact, total_fuzzy)
+        return (total_fuzzy)
+    
+    def get_top_search_results(self, top_n, keywords_str, cv_dataset):
+        """
+        Get top_n cv that match keywords_str from cv_dataset with defined algorithm (or fuzzy if not found)
+
+        Args:
+            - self
+            - top_n: number of top matches result returned
+            - keywords_str: keywords to match
+            - cv_dataset: JSON of all cv data (including profile and application)
+        
+        Returns:
+            - top_results: List of top_n CVs that match keywords_str with result data to display
+            - exact_match_time: Time taken for exact match process
+            - fuzzy_match_time: Time taken for fuzzy match process
+        """
+
+        # Initialize Time
+        exact_start_time = None
+        exact_end_time = None
+        fuzzy_start_time = None
+        fuzzy_end_time = None
+
+        # Store
+        all_results = []
+        self.keywords = self.parse_keywords(keywords_str)
+        found_exact_keywords = []
+
+        # Exact Match
+        # Exact match start time
+        exact_start_time = time.time()
+        for cv in cv_dataset:
+            self.load_cv(cv['cv_path'])
+            if (self.cv_text == ""):
+                print("Skip empty CV process")
+                continue
+
+            self.search_exact()
+            total_matches = sum(res.get('count', 0) for res in self.exact_results.values())
+
+            if total_matches > 0:
+                summary_list = []
+
+                for kw, res in self.exact_results.items():
+                    summary_list.append(f"{kw}: {res['count']} (exact)")
+                
+                # Append formatted result
+                all_results.append({
+                    'data': cv,
+                    'name': cv['first_name'] + " " + cv['last_name'],
+                    'match_count': total_matches,
+                    'summary': summary_list
+                })
+
+            # found_exact_keywords
+            for keyword in self.exact_results.keys() :
+                if keyword not in found_exact_keywords:
+                    found_exact_keywords.append(keyword)
+        
+        # Exact match end time
+        exact_end_time = time.time()
+        exact_match_time = exact_end_time - exact_start_time
+        
+        # Sort exact results
+        sorted_exact_results = sorted(all_results, key=lambda x: x['match_count'], reverse=True)
+
+        # Fuzzy Match
+        fuzzy_results = []
+        fuzzy_match_time = 0
+        if (len(all_results) < top_n):
+            # Fuzzy match start time
+            fuzzy_start_time = time.time()
+
+            # Reset found_exact_keywords if all keywords already found
+            if len(self.keywords) <= len(found_exact_keywords):
+                found_exact_keywords = []
+
+            for cv in cv_dataset: 
+                self.load_cv(cv['cv_path'])
+                self.search_fuzzy(found_exact_keywords)
+                total_matches = sum(res.get('count', 0) for res in self.fuzzy_results.values())
+
+                if total_matches > 0:
+                    summary_list = []
+                    
+                    for kw, res in self.fuzzy_results.items():
+                        unique_phrases = list(set([phrase for similar, phrase in res['matches']]))
+
+                        for phrase in unique_phrases:
+                            phrase_count = sum(1 for similar, p in res['matches'] if p == phrase)
+                            summary_list.append(f"'{phrase}': {phrase_count} (fuzzy for: {kw})")
+                    
+                    fuzzy_results.append({
+                        'data': cv,
+                        'name': cv['first_name'] + " " + cv['last_name'],
+                        'match_count': total_matches,
+                        'summary': summary_list
+                    })
+            
+            # Fuzzy match end time
+            fuzzy_end_time = time.time()
+            fuzzy_match_time = fuzzy_end_time - fuzzy_start_time
+
+            # Update sorted_exact_results  
+            sorted_fuzzy_results = sorted(fuzzy_results, key=lambda x: x['match_count'], reverse=True)
+            remaining_result_count = top_n - len(all_results)
+            top_fuzzy_results = sorted_fuzzy_results[:remaining_result_count]
+            sorted_exact_results += top_fuzzy_results
+
+        
+        # Top results
+        top_results = sorted_exact_results[:top_n]
+        return (top_results, exact_match_time, fuzzy_match_time)
 
 
 # ========== Example Use ==========

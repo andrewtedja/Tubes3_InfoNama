@@ -25,7 +25,7 @@ def seed_data(data_dir='data', limit_per_role=20, max_cvs_per_applicant=5):
         if not os.path.isdir(role_path): 
             continue 
  
-        pdf_files = [f for f in os.listdir(role_path) if f.lower().endswith(".pdf")] 
+        pdf_files = [os.path.join(role_path, f) for f in os.listdir(role_path) if f.lower().endswith(".pdf")] 
         pdf_files.sort()
         pdf_files = pdf_files[:limit_per_role] 
         
