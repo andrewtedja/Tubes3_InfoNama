@@ -4,7 +4,7 @@ import sys
 import os
 import webbrowser
 from pathlib import Path
-from .summary_page import SummaryPage
+from summary_page import SummaryPage
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from ats_processor import ATSProcessor
