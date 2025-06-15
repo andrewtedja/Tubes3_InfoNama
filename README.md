@@ -53,8 +53,5 @@ uv run src/database/seeder.py
 Run the program
 
 ```bash
-# this is for later on main branch
 uv run src/main.py
-# this branch is still in development, use the command below instead:
-uv run src/ui/GUI.py
 ```
