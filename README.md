@@ -133,12 +133,3 @@ uv run src/main.py
 | Group Video                  | ✅     |
 
 ---
-
-## 👥 Team
-
-| NIM      | Nama                |
-| -------- | ------------------- |
-| 13523126 | Brian Ricardo Tamin |
-| 13523142 | Nathanael Rachmat   |
-| 13523148 | Andrew Tedjapratama |
-| 13523154 | Theo Kurniady       |
