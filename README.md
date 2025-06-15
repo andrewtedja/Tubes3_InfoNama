@@ -36,7 +36,7 @@ MYSQL_USER=your_username
 MYSQL_PASSWORD=your_password
 
 # 2. Generate your public and private key:
-uv run src/utils/rsa.py
+uv run src/database/rsa.py
 
 # You can use the provided .env.example file as a template:
 cp .env.example .env
