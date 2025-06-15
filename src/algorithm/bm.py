@@ -2,7 +2,7 @@ class BM_ATS:
     def __init__(self):
         pass
 
-    def preprocess_bad_char(self, pattern):
+    def preprocess_bad_char(self, pattern) -> dict:
         """
         Membuat tabel bad character yang berisi posisi terakhir
         dari setiap karakter dalam pattern
@@ -12,7 +12,7 @@ class BM_ATS:
             bad_char[pattern[i]] = i
         return bad_char
 
-    def bm_search(self, text, pattern):
+    def bm_search(self, text, pattern) -> list:
         """
         Implementasi Boyer-Moore menggunakan bad character heuristic.
         Mengembalikan jumlah kemunculan pattern dalam text.
@@ -28,7 +28,7 @@ class BM_ATS:
 
         bad_char = self.preprocess_bad_char(pattern)
 
-        count = 0
+        found_indexes = []
         i = 0
 
         while i <= n - m:
@@ -38,7 +38,7 @@ class BM_ATS:
                 j -= 1
 
             if j < 0:
-                count += 1
+                found_indexes.append(i)
                 i += m
             else:
                 mismatch_char = text[i + j]
@@ -46,7 +46,7 @@ class BM_ATS:
                 shift = j - last_occurrence
                 i += max(1, shift)
 
-        return count
+        return found_indexes
 
 
 def main():
