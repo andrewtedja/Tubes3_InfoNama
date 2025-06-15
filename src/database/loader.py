@@ -62,7 +62,7 @@ def load_all_data():
                 cache[applicant_id] = decrypted
 
             except Exception as e:
-                print(f"[{idx}] ❌ Decrypt failed for applicant_id={applicant_id}: {e}")
+                print(f"[{idx}] Decrypt failed for applicant_id={applicant_id}: {e}")
         
         decrypted_data.append(row_dict)
 
