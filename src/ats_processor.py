@@ -205,7 +205,7 @@ class ATSProcessor:
         
         # Exact match end time
         exact_end_time = time.time()
-        exact_match_time = exact_end_time - exact_start_time
+        exact_match_time = int((exact_end_time - exact_start_time) * 1000)
         
         # Sort exact results
         sorted_exact_results = sorted(all_results, key=lambda x: x['match_count'], reverse=True)
@@ -245,7 +245,7 @@ class ATSProcessor:
             
             # Fuzzy match end time
             fuzzy_end_time = time.time()
-            fuzzy_match_time = fuzzy_end_time - fuzzy_start_time
+            fuzzy_match_time = int((fuzzy_end_time - fuzzy_start_time) * 1000)
 
             # Update sorted_exact_results  
             sorted_fuzzy_results = sorted(fuzzy_results, key=lambda x: x['match_count'], reverse=True)
