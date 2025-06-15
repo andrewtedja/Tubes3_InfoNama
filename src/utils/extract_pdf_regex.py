@@ -1,6 +1,6 @@
 import re
 from typing import Dict, List
-from extract_pdf_match import extract_text_from_pdf
+from utils.extract_pdf_match import extract_text_from_pdf
 
 
 def extract_pdf_for_summary(cv_path: str) -> str:

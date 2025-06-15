@@ -4,6 +4,7 @@ import sys
 import os
 import webbrowser
 from pathlib import Path
+from summary_page import SummaryPage
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from ats_processor import ATSProcessor
@@ -245,7 +246,7 @@ class GUI:
                             ft.ElevatedButton(
                                 text="Summary", icon=ft.Icons.VISIBILITY, 
                                 bgcolor="#141414", color=ft.Colors.WHITE,
-                                on_click=lambda e, n=name: self.view_summary_clicked(n)
+                                on_click=lambda e, data=data: self.view_summary_clicked(data)
                             ),
                         ],
                     ),
@@ -280,9 +281,14 @@ class GUI:
             self.search_status.value = f"No CV found"
             self.page.update()
 
-    def view_summary_clicked(self,applicant_name):
-        """Placeholder logic for viewing the summary"""
-        print(f"Logic to find and view the summarized CV for {applicant_name} goes here.")
+    def view_summary_clicked(self, data):
+        """Navigate to the summary page for the selected applicant"""
+        try:
+            SummaryPage(self.page, data, self)
+        except Exception as e:
+            print(f"Error opening summary page: {e}")
+            self.search_status.value = f"Error loading summary page"
+            self.page.update()
 
     def build_ui(self):
         """Builds the main layout of the application."""
