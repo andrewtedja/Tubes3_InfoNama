@@ -36,11 +36,11 @@ def create_tables():
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS ApplicantProfile (
         applicant_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-        first_name VARCHAR(50) DEFAULT NULL,
-        last_name VARCHAR(50) DEFAULT NULL,
-        date_of_birth DATE DEFAULT NULL,
-        address VARCHAR(255) DEFAULT NULL,
-        phone_number VARCHAR(20) DEFAULT NULL
+        first_name TEXT DEFAULT NULL,
+        last_name TEXT DEFAULT NULL,
+        date_of_birth TEXT DEFAULT NULL,
+        address TEXT DEFAULT NULL,
+        phone_number TEXT DEFAULT NULL
     );
     """)
 
