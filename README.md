@@ -1,8 +1,8 @@
-# Tugas Besar Sistem Operasi - IF2130 - 2025
+# (ATS) Applicant Tracking System leveraging Pattern Matching Algorithms
 
 ## Project Overview 📋
 
-Tubes3_InfoNama is an Applicant Tracking System (ATS) based on digital CVs, developed as part of the IF2211 Algorithm Strategy course's Big Task 3. This system leverages pattern matching algorithms to efficiently process and analyze digital CVs, aiming to streamline the recruitment process.
+InfoNama is an Applicant Tracking System (ATS) based on digital CVs, developed as part of the IF2211 Algorithm Strategy course's Big Task 3. This system leverages pattern matching algorithms to efficiently process and analyze digital CVs, aiming to streamline the recruitment process.
 
 <p align="center">
   <img src="img/image.png" alt="Tubes3_InfoNama" width="800" >
